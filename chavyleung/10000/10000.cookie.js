@@ -1,23 +1,25 @@
-/**
- * Cookie 心跳
- * 尝试每2小时运行一次本脚本来保持Cookie的活性 (效果待验证)
- */
-
-const cookieName = '腾讯视频'
-const cookieKey = 'chavy_cookie_videoqq'
+const cookieName = '电信营业厅'
+const cookieKey = 'chavy_cookie_10000'
+const mobileKey = 'chavy_mobile_10000'
 const chavy = init()
-const cookieVal = chavy.getdata(cookieKey)
-
-keep()
-
-function keep() {
-  const timestamp = Date.parse(new Date())
-  let url = { url: `https://vip.video.qq.com/fcgi-bin/comm_cgi?name=spp_PropertyNum&cmd=1&growth_value=1&otype=json&_=${timestamp}`, headers: { Cookie: cookieVal } }
-  url.headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.4 Safari/605.1.15'
-  chavy.get(url, (error, response, data) => {
-    chavy.log(`[${cookieName} 心跳], data: ${data}`)
-  })
-  chavy.done()
+if (this.$request && this.$request.headers) {
+  const cookieVal = $request.headers['Cookie']
+  if (cookieVal) {
+    if (chavy.setdata(cookieVal, cookieKey)) {
+      chavy.msg(`${cookieName}`, '获取Cookie: 成功', '')
+      chavy.log(`[${cookieName}] 获取Cookie: 成功, cookie: ${cookieVal}`)
+    }
+  }
+}
+if (this.$response) {
+  chavy.log(JSON.parse($response.body).data.userInfo.mobile)
+  const mobileVal = JSON.parse($response.body).data.userInfo.mobile
+  if (mobileVal) {
+    if (chavy.setdata(mobileVal, mobileKey)) {
+      chavy.msg(`${cookieName}`, `获取号码: 成功 (${mobileVal})`, ``)
+      chavy.log(`[${cookieName}] 获取号码: 成功, 号码: ${mobileVal}`)
+    }
+  }
 }
 
 function init() {
@@ -63,3 +65,4 @@ function init() {
   }
   return { isSurge, isQuanX, msg, log, getdata, setdata, get, post, done }
 }
+chavy.done()
